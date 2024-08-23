@@ -984,7 +984,7 @@ rte_eal_init(int argc, char **argv)
 	}
 
 	if (!rte_atomic_compare_exchange_strong_explicit(&run_once, &has_run, 1,
-					rte_memory_order_relaxed, rte_memory_order_relaxed)) {
+					rte_memory_order_relaxed, rte_memory_order_relaxed)) { // gongping: run_once 代表是否运行过初始化，运行过为1，未运行为0。has_run 表示期望值，初始化为0表示期望是未运行过
 		rte_eal_init_alert("already called initialization.");
 		rte_errno = EALREADY;
 		return -1;
