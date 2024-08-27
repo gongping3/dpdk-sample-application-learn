@@ -207,6 +207,14 @@ l2fwd_main_loop(void)
 	uint64_t prev_tsc, diff_tsc, cur_tsc, timer_tsc;
 	unsigned i, j, portid, nb_rx;
 	struct lcore_queue_conf *qconf;
+	/*
+	计算过程:
+
+	频率转换: rte_get_tsc_hz() + US_PER_S - 1 这一部分用于将 TSC 频率转换为每微秒的计数值。
+				+ US_PER_S - 1 是为了实现向上取整操作。
+	除法: rte_get_tsc_hz() / US_PER_S 将 TSC 频率从每秒转换为每微秒的计数值，即 1 微秒内的 TSC 周期数。
+	乘法: 结果再乘以 BURST_TX_DRAIN_US，得出 BURST_TX_DRAIN_US 微秒内的 TSC 周期数，这个值就是 drain_tsc。
+	*/
 	const uint64_t drain_tsc = (rte_get_tsc_hz() + US_PER_S - 1) / US_PER_S *
 			BURST_TX_DRAIN_US;
 	struct rte_eth_dev_tx_buffer *buffer;
@@ -503,7 +511,7 @@ l2fwd_parse_args(int argc, char **argv)
 			break;
 
 		/* long options */
-		case CMD_LINE_OPT_PORTMAP_NUM:
+		case CMD_LINE_OPT_PORTMAP_NUM: /* 长选项 portmap */
 			ret = l2fwd_parse_port_pair_config(optarg);
 			if (ret) {
 				fprintf(stderr, "Invalid config\n");
